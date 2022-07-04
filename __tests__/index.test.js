@@ -59,10 +59,25 @@ beforeEach(async () => {
 });
 
 test.each([
-  [fileTypes.html, getNameFromURL(requestUrl, types.htmlFile)],
-  [fileTypes.css, getNameFromURL(prepareUrl(mappingPath.css, url.origin))],
-  [fileTypes.script, getNameFromURL(prepareUrl(mappingPath.script, url.origin))],
-  [fileTypes.image, getNameFromURL(prepareUrl(mappingPath.image, url.origin))],
+  [fileTypes.html, getNameFromURL(
+    requestUrl,
+    types.htmlFile,
+  )],
+  [fileTypes.css, getNameFromURL(
+    prepareUrl(mappingPath.css, url.origin),
+    types.resourceFile,
+    'lunar-sea-surgel-sh',
+  )],
+  [fileTypes.script, getNameFromURL(
+    prepareUrl(mappingPath.script, url.origin),
+    types.resourceFile,
+    'lunar-sea-surgel-sh',
+  )],
+  [fileTypes.image, getNameFromURL(
+    prepareUrl(mappingPath.image, url.origin),
+    types.resourceFile,
+    'lunar-sea-surgel-sh',
+  )],
 ])('download correct %s file', async (type, filePath) => {
   await loadPage(requestUrl, tempDir);
 

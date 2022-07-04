@@ -10,20 +10,20 @@ import getLinksAndChangedHTML from './htmlWorker';
 
 const log = debug('page-loader');
 
-const loadReresource = (url, resourceDir) => axios({
+const loadResource = (url, resourceDir, siteUrl) => axios({
   method: 'get',
   url,
   responseType: 'stream',
 }).then(({ data }) => {
-  const resourceFileName = getNameFromURL(url);
+  const resourceFileName = getNameFromURL(url, types.resourceFile, siteUrl);
   data.pipe(createWriteStream(path.join(resourceDir, resourceFileName)));
 
   return log(`Reresource ${resourceFileName} has been loaded and written to the folder ${resourceDir}`);
 });
 
-const loadReresources = (links, resourceDir) => {
+const loadResources = (links, resourceDir, siteUrl) => {
   const data = links.map((link) => (
-    { title: `${link}`, task: () => loadReresource(link, resourceDir) }
+    { title: `${link}`, task: () => loadResource(link, resourceDir, siteUrl) }
   ));
 
   const tasks = new Listr(data, { concurrent: true, exitOnError: false });
@@ -32,17 +32,18 @@ const loadReresources = (links, resourceDir) => {
 
 export default (requestUrl, outputDir) => axios.get(requestUrl)
   .then(({ data: html }) => {
+    const siteUrl = getNameFromURL(requestUrl, types.siteUrl);
     const resourceDirName = getNameFromURL(requestUrl, types.resourceDir);
     const resourceDir = path.join(outputDir, resourceDirName);
 
-    const { links, changedHtml } = getLinksAndChangedHTML(html, requestUrl);
+    const { links, changedHtml } = getLinksAndChangedHTML(html, requestUrl, siteUrl);
     log(`Links from HTML document: ${links}`);
 
     return fs.mkdir(resourceDir)
       .then(() => {
         log(`Folder ${resourceDirName} was created in ${outputDir}`);
 
-        return loadReresources(links, resourceDir);
+        return loadResources(links, resourceDir, siteUrl);
       })
       .then(() => {
         const indexFileName = getNameFromURL(requestUrl, types.htmlFile);
