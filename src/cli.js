@@ -9,7 +9,7 @@ export default () => {
     .arguments('<url>')
     .action((url) => {
       loadPage(url, program.output)
-        .then((fileName) => console.log(`Page was downloaded as ${fileName}`))
+        .then(({ filepath }) => console.log(`Page was downloaded as ${filepath}`))
         .catch((err) => {
           console.log(err.message);
           process.exit(1);

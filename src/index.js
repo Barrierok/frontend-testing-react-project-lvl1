@@ -53,7 +53,7 @@ export default (requestUrl, outputDir) => axios.get(requestUrl)
         const indexFileName = getNameFromURL(requestUrl, types.htmlFile);
         log(`File ${indexFileName} was created in folder ${outputDir}`);
 
-        return indexFileName;
+        return { filepath: `${outputDir}/${indexFileName}` };
       });
   })
   .catch((err) => {
