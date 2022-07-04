@@ -1,0 +1,3 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`application error handling 1`] = `[Error: ENOENT: no such file or directory, mkdir 'output/lunar-sea-surgel-sh_files']`;

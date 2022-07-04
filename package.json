@@ -1,9 +1,8 @@
 {
   "name": "@hexlet/code",
   "version": "1.0.0",
-  "description": "[![Actions Status](https://github.com/Barrierok/frontend-testing-react-project-lvl1/workflows/hexlet-check/badge.svg)](https://github.com/Barrierok/frontend-testing-react-project-lvl1/actions)",
-  "main": "index.js",
-  "type": "module",
+  "description": "Testing",
+  "main": "./src/index.js",
   "simple-git-hooks": {
     "pre-push": "make lint"
   },
@@ -11,7 +10,7 @@
     "node": ">=14"
   },
   "scripts": {
-    "test": "npx jest"
+    "test": "jest"
   },
   "repository": {
     "type": "git",
@@ -24,7 +23,12 @@
   },
   "homepage": "https://github.com/Barrierok/frontend-testing-react-project-lvl1#readme",
   "dependencies": {
+    "axios": "^0.27.2",
+    "axios-debug-log": "^0.8.4",
+    "cheerio": "^1.0.0-rc.12",
+    "commander": "^9.3.0",
     "debug": "^4.3.4",
+    "listr": "^0.14.3",
     "lodash": "^4.17.21"
   },
   "devDependencies": {
@@ -41,6 +45,7 @@
     "eslint-plugin-jest": "^26.5.3",
     "jest": "^28.1.2",
     "jest-cli": "^28.1.2",
+    "nock": "^13.2.8",
     "npm-check-updates": "^14.1.1",
     "simple-git-hooks": "^2.8.0"
   }
