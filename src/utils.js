@@ -21,9 +21,7 @@ export const types = {
 
 export const getNameFromURL = (url, type, siteName) => {
   const dispatcher = {
-    [types.siteUrl]: ({ host, pathname }) => (
-      getKebabName(path.join(host, pathname))
-    ),
+    [types.siteUrl]: ({ host }) => getKebabName(host),
     [types.resourceDir]: ({ host, pathname }) => (
       `${getKebabName(path.join(host, pathname))}_files`
     ),
