@@ -16,7 +16,9 @@ export default (html, url, siteUrl) => {
       const link = $(el).attr(attribute);
       if (!link) return;
 
-      const preparedUrl = new URL(link, origin);
+      const linkWithExtname = !path.extname(link) ? `${link}.html` : link;
+
+      const preparedUrl = new URL(linkWithExtname, origin);
       if (!origin.includes(preparedUrl.host)) return;
 
       const stringifiedUrl = preparedUrl.toString();
