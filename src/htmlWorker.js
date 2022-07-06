@@ -4,7 +4,7 @@ import { uniq } from 'lodash';
 
 import { tags, getNameFromURL, types } from './utils';
 
-export default (html, url, siteUrl) => {
+export default (html, url) => {
   const $ = cheerio.load(html);
   const { origin } = new URL(url);
   const resourceDir = getNameFromURL(url, types.resourceDir);
@@ -22,10 +22,7 @@ export default (html, url, siteUrl) => {
       if (!origin.includes(preparedUrl.host)) return;
 
       const stringifiedUrl = preparedUrl.toString();
-      const newPath = path.join(
-        resourceDir,
-        getNameFromURL(stringifiedUrl, types.resourceFile, siteUrl),
-      );
+      const newPath = path.join(resourceDir, getNameFromURL(stringifiedUrl));
 
       $(el).attr(attribute, newPath);
       links.push(stringifiedUrl);

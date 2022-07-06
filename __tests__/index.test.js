@@ -2,95 +2,112 @@ import nock from 'nock';
 import { promises as fs } from 'fs';
 import path from 'path';
 import os from 'os';
-
+import { describe, test, expect } from '@jest/globals';
 import loadPage from '../src';
-import { getNameFromURL, types } from '../src/utils';
 
 nock.disableNetConnect();
 
-let tempDir = '';
-let outputFilesDir = '';
-let originalHtml = '';
-const url = new URL('http://lunar-sea-surgel.sh');
-const requestUrl = url.toString();
-const pathFixturesDir = path.join(__dirname, '..', '__fixtures__');
-let mappingResult = {};
+const getFixturePath = (fileName) => path.join(__dirname, '..', '__fixtures__', fileName);
+const getExpectedAssetPath = (fileName) => getFixturePath(`expected/site-com-blog-about_files/${fileName}`);
 
-const fileTypes = {
-  html: 'html', css: 'css', script: 'script', image: 'image',
-};
+let TEMP_DIR = '';
+let OUTPUT_FILES_DIR = '';
 
-const mappingPath = {
-  [fileTypes.html]: '/',
-  [fileTypes.css]: '/styles/style.css',
-  [fileTypes.script]: '/scripts/index.js',
-  [fileTypes.image]: '/images/banner.png',
-};
+const BASE_URL = new URL('https://site.com/blog/about');
 
-const readFile = (dir, pathToFile) => fs.readFile(path.join(dir, pathToFile), 'utf8');
+const requestUrl = BASE_URL.toString();
 
-const prepareUrl = (pathname, origin) => new URL(pathname, origin).toString();
+const HTML_FILE_NAME = 'site-com-blog-about.html';
+const HTML_FILE_PATH = getFixturePath(HTML_FILE_NAME);
+const EXPECTED_HTML_FILE_PATH = getFixturePath(`expected/${HTML_FILE_NAME}`);
 
-beforeAll(async () => {
-  originalHtml = await readFile(pathFixturesDir, 'index.html');
+const ASSETS = [
+  {
+    fixturePath: getExpectedAssetPath('site-com-photos-me.jpg'),
+    contentType: { 'Content-Type': 'image/jpeg' },
+    url: '/photos/me.jpg',
+    fileName: 'site-com-photos-me.jpg',
+  },
+  {
+    fixturePath: getExpectedAssetPath('site-com-blog-about-assets-styles.css'),
+    contentType: { 'Content-Type': 'text/css' },
+    url: '/blog/about/assets/styles.css',
+    fileName: 'site-com-blog-about-assets-styles.css',
+  },
+  {
+    fixturePath: getExpectedAssetPath('site-com-assets-scripts.js'),
+    contentType: { 'Content-Type': 'application/javascript' },
+    url: '/assets/scripts.js',
+    fileName: 'site-com-assets-scripts.js',
+  },
+  {
+    fixturePath: getExpectedAssetPath('site-com-blog-about.html'),
+    contentType: { 'Content-Type': 'text/html' },
+    url: '/blog/about.html',
+    fileName: 'site-com-blog-about.html',
+  },
+];
 
-  mappingResult = {
-    [fileTypes.html]: await readFile(pathFixturesDir, 'changedIndex.html'),
-    [fileTypes.css]: await readFile(pathFixturesDir, mappingPath.css),
-    [fileTypes.script]: await readFile(pathFixturesDir, mappingPath.script),
-    [fileTypes.image]: await readFile(pathFixturesDir, mappingPath.image),
-  };
+const NON_AVAILABLE_ASSETS = ['/assets/gtm.js'];
 
-  nock(requestUrl)
-    .persist()
-    .get(mappingPath[fileTypes.html])
-    .reply(200, originalHtml)
-    .get(mappingPath[fileTypes.css])
-    .reply(200, mappingResult[fileTypes.css])
-    .get(mappingPath[fileTypes.script])
-    .reply(200, mappingResult[fileTypes.script])
-    .get(mappingPath[fileTypes.image])
-    .reply(200, mappingResult[fileTypes.image]);
+beforeAll(() => {
+  nock(BASE_URL.origin)
+    .persist(true)
+    .get(BASE_URL.pathname)
+    .replyWithFile(200, HTML_FILE_PATH, { 'Content-Type': 'text/html' });
+  ASSETS.forEach((asset) => nock(BASE_URL.origin)
+    .persist(true)
+    .get(asset.url)
+    .replyWithFile(200, asset.fixturePath, asset.contentType));
+  NON_AVAILABLE_ASSETS.forEach((url) => nock(BASE_URL.origin)
+    .persist(true)
+    .get(url)
+    .reply(404));
 });
 
 beforeEach(async () => {
-  tempDir = await fs.mkdtemp(path.join(os.tmpdir(), 'page-loader-'));
-  outputFilesDir = path.join(tempDir, getNameFromURL(requestUrl, types.resourceDir));
-});
-
-test.each([
-  [fileTypes.html, getNameFromURL(
-    requestUrl,
-    types.htmlFile,
-  )],
-  [fileTypes.css, getNameFromURL(
-    prepareUrl(mappingPath.css, url.origin),
-    types.resourceFile,
-    'lunar-sea-surgel-sh',
-  )],
-  [fileTypes.script, getNameFromURL(
-    prepareUrl(mappingPath.script, url.origin),
-    types.resourceFile,
-    'lunar-sea-surgel-sh',
-  )],
-  [fileTypes.image, getNameFromURL(
-    prepareUrl(mappingPath.image, url.origin),
-    types.resourceFile,
-    'lunar-sea-surgel-sh',
-  )],
-])('download correct %s file', async (type, filePath) => {
-  await loadPage(requestUrl, tempDir);
-
-  const dirName = type === fileTypes.html ? tempDir : outputFilesDir;
-
-  const result = await readFile(dirName, filePath);
-  expect(result).toEqual(mappingResult[type]);
-});
-
-test('application error handling', async () => {
-  await expect(loadPage(requestUrl, 'output')).rejects.toMatchSnapshot();
+  TEMP_DIR = await fs.mkdtemp(path.join(os.tmpdir(), 'page-loader-'));
+  OUTPUT_FILES_DIR = path.join(TEMP_DIR, 'site-com-blog-about_files');
 });
 
 afterEach(async () => {
-  await fs.rmdir(tempDir, { recursive: true });
+  await fs.rmdir(TEMP_DIR, { recursive: true });
+});
+
+describe('positive cases', () => {
+  test('load main page', async () => {
+    const { filepath } = await loadPage(requestUrl, TEMP_DIR);
+    const expectedPath = path.join(TEMP_DIR, HTML_FILE_NAME);
+    expect(filepath).toEqual(expectedPath);
+
+    const resultHtml = await fs.readFile(filepath, 'utf8');
+    const expectedHtml = await fs.readFile(EXPECTED_HTML_FILE_PATH, 'utf8');
+    expect(resultHtml).toEqual(expectedHtml);
+  });
+
+  test.each(ASSETS)('download correct $fileName', async (asset) => {
+    await loadPage(requestUrl, TEMP_DIR);
+    const expectedAsset = await fs.readFile(asset.fixturePath, 'utf8');
+    const result = await fs.readFile(path.join(OUTPUT_FILES_DIR, asset.fileName), 'utf8');
+    expect(result).toEqual(expectedAsset);
+  });
+});
+
+describe('negative cases', () => {
+  test('application error handling', async () => {
+    await expect(loadPage(requestUrl, 'output')).rejects.toMatchSnapshot();
+  });
+
+  test('throw exception if run with invalid url', async () => {
+    await expect(loadPage('invalidURL', TEMP_DIR)).rejects.toThrow();
+  });
+
+  test.each([401, 403, 404, 500, 503])(
+    "throw exception if main url doesn't available, server returns %d",
+    async (code) => {
+      const url = 'https://example.com';
+      nock(url).get('/').reply(code);
+      await expect(loadPage(url, TEMP_DIR)).rejects.toThrow();
+    },
+  );
 });
