@@ -14,7 +14,6 @@ const loadResource = (url, resourceDir) => axios({
   url,
   responseType: 'stream',
 }).then(({ data }) => {
-  console.log(1, url);
   const resourceFileName = getNameFromURL(url);
 
   data.pipe(createWriteStream(path.join(resourceDir, resourceFileName)));
