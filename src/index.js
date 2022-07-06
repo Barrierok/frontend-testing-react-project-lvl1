@@ -2,7 +2,6 @@ import axios from 'axios';
 import { promises as fs, createWriteStream } from 'fs';
 import path from 'path';
 import debug from 'debug';
-import Listr from 'listr';
 import 'axios-debug-log';
 
 import { getNameFromURL, types } from './utils';
@@ -23,14 +22,9 @@ const loadResource = (url, resourceDir) => axios({
   return log(`Resource ${resourceFileName} has been loaded and written to the folder ${resourceDir}`);
 });
 
-const loadResources = (links, resourceDir) => {
-  const data = links.map((link) => (
-    { title: `${link}`, task: () => loadResource(link, resourceDir) }
-  ));
-
-  const tasks = new Listr(data, { concurrent: true, exitOnError: false });
-  return tasks.run();
-};
+const loadResources = (links, resourceDir) => (
+  Promise.all(links.map((link) => loadResource(link, resourceDir)))
+);
 
 export default (requestUrl, outputDir = '') => axios.get(requestUrl).then(({ data: html }) => {
   const resourceDirName = getNameFromURL(requestUrl, types.resourceDir);
