@@ -15,7 +15,10 @@ const loadResource = (url, resourceDir) => axios({
   url,
   responseType: 'stream',
 }).then(({ data }) => {
-  const resourceFileName = getNameFromURL(url);
+  const resourceFileName = getNameFromURL(url, data.headers['content-type'] === 'text/html'
+    ? types.htmlFile
+    : types.resourceFile);
+
   data.pipe(createWriteStream(path.join(resourceDir, resourceFileName)));
 
   return log(`Resource ${resourceFileName} has been loaded and written to the folder ${resourceDir}`);

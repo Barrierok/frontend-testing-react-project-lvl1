@@ -25,7 +25,7 @@ export default (html, url) => {
       const newPath = path.join(resourceDir, getNameFromURL(stringifiedUrl));
 
       $(el).attr(attribute, newPath);
-      links.push(stringifiedUrl);
+      links.push(new URL(link, origin).toString());
     });
   });
   return { changedHtml: $.html(), links: uniq(links) };

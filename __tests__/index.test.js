@@ -41,9 +41,9 @@ const ASSETS = [
     fileName: 'site-com-assets-scripts.js',
   },
   {
-    fixturePath: getExpectedAssetPath('site-com-blog-about.html'),
+    fixturePath: getExpectedAssetPath(HTML_FILE_NAME),
     contentType: { 'Content-Type': 'text/html' },
-    url: '/blog/about.html',
+    url: '/blog/about',
     fileName: 'site-com-blog-about.html',
   },
 ];
