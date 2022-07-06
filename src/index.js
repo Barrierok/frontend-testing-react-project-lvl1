@@ -32,33 +32,28 @@ const loadResources = (links, resourceDir) => {
   return tasks.run();
 };
 
-export default (requestUrl, outputDir) => axios.get(requestUrl)
-  .then(({ data: html }) => {
-    const resourceDirName = getNameFromURL(requestUrl, types.resourceDir);
-    const resourceDir = path.join(outputDir, resourceDirName);
+export default (requestUrl, outputDir = '') => axios.get(requestUrl).then(({ data: html }) => {
+  const resourceDirName = getNameFromURL(requestUrl, types.resourceDir);
+  const resourceDir = path.join(outputDir, resourceDirName);
 
-    const { links, changedHtml } = getLinksAndChangedHTML(html, requestUrl);
-    log(`Links from HTML document: ${links}`);
+  const { links, changedHtml } = getLinksAndChangedHTML(html, requestUrl);
+  log(`Links from HTML document: ${links}`);
 
-    return fs.mkdir(resourceDir)
-      .then(() => {
-        log(`Folder ${resourceDirName} was created in ${outputDir}`);
+  return fs.mkdir(resourceDir).then(() => {
+    log(`Folder ${resourceDirName} was created in ${outputDir}`);
 
-        return loadResources(links, resourceDir);
-      })
-      .then(() => {
-        const indexFileName = getNameFromURL(requestUrl);
+    return loadResources(links, resourceDir);
+  }).then(() => {
+    const indexFileName = getNameFromURL(requestUrl);
 
-        return fs.writeFile(path.join(outputDir, indexFileName), changedHtml, 'utf-8');
-      })
-      .then(() => {
-        const indexFileName = getNameFromURL(requestUrl);
-        log(`File ${indexFileName} was created in folder ${outputDir}`);
+    return fs.writeFile(path.join(outputDir, indexFileName), changedHtml, 'utf-8');
+  }).then(() => {
+    const indexFileName = getNameFromURL(requestUrl);
+    log(`File ${indexFileName} was created in folder ${outputDir}`);
 
-        return { filepath: `${outputDir}/${indexFileName}` };
-      });
-  })
-  .catch((err) => {
-    log(err.message);
-    throw err;
+    return { filepath: `${outputDir}/${indexFileName}` };
   });
+}).catch((err) => {
+  log(err.message);
+  throw err;
+});

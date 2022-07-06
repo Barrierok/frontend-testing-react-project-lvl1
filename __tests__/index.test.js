@@ -102,6 +102,10 @@ describe('negative cases', () => {
     await expect(loadPage('invalidURL', TEMP_DIR)).rejects.toThrow();
   });
 
+  test('throw exception if output dir is undefined', async () => {
+    await expect(loadPage('invalidURL')).rejects.toThrow();
+  });
+
   test.each([401, 403, 404, 500, 503])(
     "throw exception if main url doesn't available, server returns %d",
     async (code) => {
