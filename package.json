@@ -12,6 +12,9 @@
   "scripts": {
     "test": "DEBUG=page-loader,axios jest"
   },
+  "bin": {
+    "page-loader": "/src/bin/pageLoader.js"
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/Barrierok/frontend-testing-react-project-lvl1.git"
