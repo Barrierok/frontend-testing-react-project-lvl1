@@ -15,6 +15,8 @@ const loadResource = (url, resourceDir) => axios({
   url,
   responseType: 'stream',
 }).then(({ data }) => {
+  console.log(data);
+
   const resourceFileName = getNameFromURL(url, data.headers['content-type'] === 'text/html'
     ? types.htmlFile
     : types.resourceFile);
