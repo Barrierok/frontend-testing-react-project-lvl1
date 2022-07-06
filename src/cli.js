@@ -7,8 +7,8 @@ export default () => {
     .description('Download the specified address from the Internet')
     .option('-o, --output [dir]', 'Output directory', process.cwd())
     .arguments('<url>')
-    .action((url) => {
-      loadPage(url, program.output)
+    .action((url, options) => {
+      loadPage(url, options.output)
         .then(({ filepath }) => console.log(filepath))
         .catch((err) => {
           console.log(err.message);
