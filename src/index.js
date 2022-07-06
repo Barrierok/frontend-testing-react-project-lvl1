@@ -46,7 +46,6 @@ export default (requestUrl, outputDir = '') => axios
       const indexFileName = getNameFromURL(requestUrl);
       log(`File ${indexFileName} was created in folder ${outputDir}`);
 
-      console.log(path.join(outputDir, indexFileName));
       return { filepath: path.join(outputDir, indexFileName) };
     });
   }).catch((err) => {

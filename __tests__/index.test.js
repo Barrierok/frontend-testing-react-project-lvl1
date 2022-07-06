@@ -98,16 +98,12 @@ describe('negative cases', () => {
     await expect(loadPage(requestUrl, 'output')).rejects.toMatchSnapshot();
   });
 
-  test('throw exception if run with invalid url', async () => {
-    await expect(loadPage('invalidURL', TEMP_DIR)).rejects.toThrow();
-  });
-
-  test('throw exception if output dir is undefined', async () => {
-    await expect(loadPage('invalidURL')).rejects.toThrow();
+  test('throw exception if use invalid url', async () => {
+    await expect(loadPage('some-invalid-url', TEMP_DIR)).rejects.toThrow();
   });
 
   test.each([401, 403, 404, 500, 503])(
-    "throw exception if main url doesn't available, server returns %d",
+    "throw exception if main url doesn't available, response code: %d",
     async (code) => {
       const url = 'https://example.com';
       nock(url).get('/').reply(code);
