@@ -10,7 +10,7 @@
     "node": ">=14"
   },
   "scripts": {
-    "test": "jest"
+    "test": "DEBUG=page-loader,axios jest"
   },
   "repository": {
     "type": "git",
