@@ -13,7 +13,6 @@ export const getKebabName = (link) => link
   .join('-');
 
 export const types = {
-  htmlFile: 'htmlFile',
   resourceDir: 'sourceDir',
   resourceFile: 'sourceFile',
 };
@@ -23,14 +22,9 @@ export const getNameFromURL = (url, type = types.resourceFile) => {
     [types.resourceDir]: ({ host, pathname }) => (
       `${getKebabName(path.join(host, pathname))}_files`
     ),
-    [types.htmlFile]: ({ host, pathname }) => (
-      `${getKebabName(path.join(host, pathname))}.html`
-    ),
     [types.resourceFile]: ({ host, pathname }) => {
-      const filePath = getKebabName(pathname);
-      const withoutExtname = filePath.slice(0, filePath.lastIndexOf('-'));
-
-      return `${getKebabName(host)}-${withoutExtname}${path.extname(pathname)}`;
+      const { dir, name, ext } = path.parse(pathname);
+      return `${getKebabName(path.join(host, dir, name))}${ext || '.html'}`;
     },
   };
   return dispatcher[type](new URL(url));

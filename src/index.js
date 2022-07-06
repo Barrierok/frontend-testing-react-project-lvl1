@@ -15,13 +15,8 @@ const loadResource = (url, resourceDir) => axios({
   url,
   responseType: 'stream',
 }).then(({ data }) => {
-  console.log(data);
-
-  const resourceFileName = getNameFromURL(url, data.headers['content-type'] === 'text/html'
-    ? types.htmlFile
-    : types.resourceFile);
-
-  console.log(resourceFileName);
+  console.log(1, url);
+  const resourceFileName = getNameFromURL(url);
 
   data.pipe(createWriteStream(path.join(resourceDir, resourceFileName)));
 
@@ -52,12 +47,12 @@ export default (requestUrl, outputDir) => axios.get(requestUrl)
         return loadResources(links, resourceDir);
       })
       .then(() => {
-        const indexFileName = getNameFromURL(requestUrl, types.htmlFile);
+        const indexFileName = getNameFromURL(requestUrl);
 
         return fs.writeFile(path.join(outputDir, indexFileName), changedHtml, 'utf-8');
       })
       .then(() => {
-        const indexFileName = getNameFromURL(requestUrl, types.htmlFile);
+        const indexFileName = getNameFromURL(requestUrl);
         log(`File ${indexFileName} was created in folder ${outputDir}`);
 
         return { filepath: `${outputDir}/${indexFileName}` };
