@@ -19,6 +19,8 @@ const loadResource = (url, resourceDir) => axios({
     ? types.htmlFile
     : types.resourceFile);
 
+  console.log(resourceFileName);
+
   data.pipe(createWriteStream(path.join(resourceDir, resourceFileName)));
 
   return log(`Resource ${resourceFileName} has been loaded and written to the folder ${resourceDir}`);

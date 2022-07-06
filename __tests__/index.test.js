@@ -44,7 +44,7 @@ const ASSETS = [
     fixturePath: getExpectedAssetPath(HTML_FILE_NAME),
     contentType: { 'Content-Type': 'text/html' },
     url: '/blog/about',
-    fileName: 'site-com-blog-about.html',
+    fileName: HTML_FILE_NAME,
   },
 ];
 
